@@ -7,8 +7,13 @@ def main():
     command = sys.argv[3]
     args = sys.argv[4:]
     
-    completed_process = subprocess.run([command, *args], capture_output=True)
-    print(completed_process.stdout.decode("utf-8"))
+    process = subprocess.Popen([command, *args], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    stderr, stdout = process.communicate()
+
+    if stderr:
+        print(stderr.decode("utf-8"), file=sys.stderr, end="")
+    if stdout:
+        print(stdout.decode("utf-8"), end="")
 
 
 if __name__ == "__main__":
