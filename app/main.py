@@ -15,6 +15,8 @@ def main():
     if stdout:
         print(stdout.decode("utf-8"), end="")
 
+    sys.exit(process.returncode)
+
 
 if __name__ == "__main__":
     main()
