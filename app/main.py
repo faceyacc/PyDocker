@@ -3,6 +3,7 @@ import subprocess
 import sys
 import tempfile
 import os
+import ctypes
 
 
 def main():
@@ -18,6 +19,12 @@ def main():
 
     # make temp dir root
     os.chroot(tmp_dir)
+
+    libc = ctypes.LibraryLoader("libc.so.6")
+
+    # Pass in CLONE_NEWPID flag to unshare
+    # Unshare the PID namespace so parent a child processes have seperate namespaces
+    libc.unshare(0x20000000)
 
     command = os.path.join("/", os.path.basename(command))
     
