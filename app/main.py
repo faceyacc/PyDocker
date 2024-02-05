@@ -87,7 +87,7 @@ def run_command(command, args, dir_path):
     if stdout:
         print(stdout.decode("utf-8"), end='')    
     
-    
+    # Return exit stauts
     sys.exit(parent_process.returncode)
 
 
