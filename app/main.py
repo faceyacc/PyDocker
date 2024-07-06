@@ -28,7 +28,7 @@ def get_token(image: str):
     return res_json["token"]
 
 
-def get_manifest(image, token):
+def get_manifest(image: str, token: str):
 
     """
     Get image manifest for specified image (from 'command') from Docker Hub
@@ -58,7 +58,7 @@ def get_manifest(image, token):
 
 
 
-def pull_layers(image, token, layers):
+def pull_layers(image: str, token: str, layers: list):
     """
     Download layers from manifest file and put result a tarfile (call it manifest.tar)
 
@@ -72,6 +72,8 @@ def pull_layers(image, token, layers):
     """
 
     dir_path = tempfile.mkdtemp()
+    tmp_file = None
+
 
     # 3. Download layers from manifest file and put result a tarfile (call it manifest.tar)
     for layer in layers:
@@ -83,14 +85,22 @@ def pull_layers(image, token, layers):
                     "Authorization": "Bearer " + token,
             })
         res = urllib.request.urlopen(request)
+
+        # Save the layers to a temporary file
         tmp_file = os.path.join(dir_path, "manifest.tar")
+
+        # Save the layers to a temporary file
         with open(tmp_file, "wb") as f:
             shutil.copyfileobj(res, f)
 
+        # Extract the layers
         with tarfile.open(tmp_file) as tar:
             tar.extractall(dir_path)
 
-    os.remove(tmp_file)
+    # Remove the temporary file
+    if tmp_file:
+        os.remove(tmp_file)
+
     return dir_path
 
 
@@ -140,17 +150,16 @@ def main():
     command = sys.argv[3]
     args = sys.argv[4:]
 
-    # 1. get token from Docker auth server by making GET req using image from args
+    #get token from Docker auth server by making GET req using image from args
     token = get_token(image=image)
 
-    # 2. using the token from above get image manifest for specified image (from 'command') from Docker Hub
+    #using the token from above get image manifest for specified image (from 'command') from Docker Hub
     layers = get_manifest(image=image, token=token)
 
-    # 3. Download layers from manifest file and put result a tarfile (call it manifest.tar)
+    #Download layers from manifest file and put result a tarfile (call it manifest.tar)
     dir_path = pull_layers(image, token, layers)
 
     run_command(command, args, dir_path)
-
 
 
 if __name__ == "__main__":
